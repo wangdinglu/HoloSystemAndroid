@@ -64,22 +64,6 @@ namespace MixOne
         //    { "Kuaikan_Comic7","Kuaikan_Comic7" },
         //};
 
-        // Start is called before the first frame update
-        void Awake()
-        {
-            
-
-
-
-
-        }
-
-        // Update is called once per frame
-        void Update()
-        {
-
-        }
-
         public void SetAppList()
         {
             string path =

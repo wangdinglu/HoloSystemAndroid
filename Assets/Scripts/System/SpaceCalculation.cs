@@ -6,80 +6,92 @@ namespace MixOne
 {
     public class SpaceCalculation : SpaceSettings
     {
-        public int[] GetBounds(Vector3 view,int width)
+        public int[] GetUpBounds(int position,int width)
         {
             int[] bounds = new int[2];
             
-            bounds[0] = Mathf.FloorToInt(view.y / cell - (float)width / 2);
-            bounds[1] = Mathf.FloorToInt(view.y / cell + (float)width / 2);
+            bounds[0] = position - (width - 1) / 2;
+            bounds[1] = position + width / 2;
             if (bounds[0] < 0)
-                bounds[0] += length;
-            if (bounds[1] < 0)
-                bounds[1] += length;
+            {
+                bounds[1] += 0 - bounds[0];
+                bounds[0] = 0;
+            }
+            if (bounds[1] > verticalHeight - 1)
+            {
+                bounds[1] = verticalHeight - 1;
+                bounds[0] -= bounds[1] - (verticalHeight - 1);
+            }
             return bounds;
         }
 
-        public Vector3 SetDynamicPosition(Vector3 view, int layer)
+        public int[] GetDownBounds(int position, int width)
         {
-            float angle = view.y/180*Mathf.PI;
-            float factor = Mathf.Pow((layerDynamicRadius / basicDynamicRadius + 1), layer);
-            float radius = basicDynamicRadius * factor;
-            Vector3 position = new Vector3(radius*Mathf.Sin(angle),0, radius * Mathf.Cos(angle));
-            return position;
-        }
+            int[] bounds = new int[2];
 
-        public Vector3 SetStaticPosition(int layer)
-        {
-            float factor = Mathf.Pow((layerStaticRadius / basicStaticRadius + 1), layer);
-            float radius = basicStaticRadius * factor;
-            Vector3 position = new Vector3(0, 0, radius);
-            return position;
-        }
-
-        public Vector3 SetDynamicPosition(Vector3 oldPosition)
-        {
-            Vector3 position = oldPosition * (layerDynamicRadius / basicDynamicRadius + 1);
-            return position;
-        }
-
-        public Vector3 SetStaticPosition(Vector3 oldPosition)
-        {
-            Vector3 position = oldPosition * (layerStaticRadius / basicStaticRadius + 1);
-            return position;
-        }
-
-        public Vector3 SetRotation(Vector3 view)
-        {
-            Vector3 rotation = new Vector3(0, view.y, 0);
-            return rotation;
-        }
-
-        public Vector3 SetDynamicScale(int layer)
-        {
-            float scaleFactor = Mathf.Pow((layerDynamicRadius / basicDynamicRadius + 1),layer);
-            Vector3 scale = new Vector3(scaleFactor, scaleFactor, scaleFactor);
-            return scale;
-        }
-
-        public Vector3 SetStaticScale(int layer)
-        {
-            float scaleFactor = Mathf.Pow((layerStaticRadius / basicStaticRadius + 1), layer);
-            Vector3 scale = new Vector3(scaleFactor, scaleFactor, scaleFactor);
-            return scale;
-        }
-
-        public bool CheckInsert(int[] id)
-        {
-            bool isEmpty = true;
-            for(int i = 0; i < id.Length; i++)
+            bounds[0] = position - (width - 1) / 2;
+            bounds[1] = position + width / 2;
+            if (bounds[0] < 0)
             {
-                if (id[i] != 0)
-                {
-                    isEmpty = false;
-                    return isEmpty;
-                }
+                bounds[1] += 0 - bounds[0];
+                bounds[0] = 0;                
             }
-            return isEmpty;
+            if (bounds[1] > verticalHeight - 1)
+            {
+                bounds[1] = verticalHeight - 1;
+                bounds[0] -= bounds[1] - (verticalHeight - 1);
+            }
+            return bounds;
+        }
+
+        public int[] GetHorizonFreeBounds(int position, int width)
+        {
+            int[] bounds = new int[2];
+
+            bounds[0] = position - (width-1) / 2;
+            bounds[1] = position + width / 2;
+            if (bounds[0] < 0)
+            {
+                bounds[1] += 0 - bounds[0];
+                bounds[0] = 0;                
+            }
+            if (bounds[1] > horizonWidth - 1)
+            {                
+                bounds[0] -= bounds[1] - (horizonWidth - 1);
+                bounds[1] = horizonWidth - 1;
+            }
+            return bounds;
+        }
+
+        public int[] GetHorizonLockBounds(int position, int width)
+        {
+            int[] bounds = new int[2];
+
+            bounds[0] = position - (width-1) / 2;
+            bounds[1] = position + width / 2;
+            Debug.Log(bounds[0].ToString() + "  " + bounds[1].ToString());
+            if (bounds[0] < 0)
+            {
+                bounds[1] += 0 - bounds[0];
+                bounds[0] = 0;
+            }
+            if (bounds[1] >= (horizonWidth - verticalWidth) / 2 && position < (horizonWidth - verticalWidth) / 2)
+            {
+                bounds[0] = (horizonWidth - verticalWidth) / 2 - 1 - (width - 1);
+                bounds[1] = (horizonWidth - verticalWidth) / 2 - 1;
+            }
+            if (bounds[0] <= horizonWidth - (horizonWidth - verticalWidth) / 2 - 1 && position > horizonWidth - (horizonWidth - verticalWidth) / 2 - 1)
+            {
+                bounds[0] = horizonWidth - (horizonWidth - verticalWidth) / 2;
+                bounds[1] = horizonWidth - (horizonWidth - verticalWidth) / 2 + width - 1;
+            }
+            if (bounds[1] > horizonWidth - 1)
+            {
+                bounds[0] -= bounds[1] - (horizonWidth - 1);
+                bounds[1] = horizonWidth - 1;
+            }
+            Debug.Log(bounds[0].ToString() + "  " + bounds[1].ToString());
+            return bounds;
         }
     }
 }

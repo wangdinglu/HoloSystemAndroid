@@ -22,9 +22,13 @@ namespace MixOne
         public void sendInfo()
         {
             string name = button.name;
-            Debug.Log(button.name);
+            Debug.Log(IP.text);
+            if (IP.text == "0.0.0.0" && Application.platform == RuntimePlatform.Android)
+                IP.text = "192.168.1.224";
+            if (IP.text == "0.0.0.0" && Application.platform == RuntimePlatform.WindowsEditor)
+                IP.text = "192.168.1.58";
             SpaceSettings.serverIP = IP.text;
-            SceneManager.LoadScene("AR_02");
+            SceneManager.LoadScene("AR_04");
         }
 
 

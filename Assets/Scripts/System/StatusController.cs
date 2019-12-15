@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Timers;
+using UnityEngine.Video;
+
 
 namespace MixOne
 {
@@ -13,7 +15,12 @@ namespace MixOne
         public LensServer server;
         public CameraSystem cs;
         public GazeCenter gc;
+        public AppControl ap;
         private bool cameraHold = false;
+        private GameObject layer;
+        private ControlList cl;
+        private string tapName;
+        private string parentName;
 
         private List<string> LayerTaskList = new List<string>
         {
@@ -29,11 +36,14 @@ namespace MixOne
 
         public void Awake()
         {
-            cs = GameObject.Find("WindowManager").GetComponent<CameraSystem>();
-            ls = GameObject.Find("WindowManager").GetComponent<LayerSystem>();
-            ws = GameObject.Find("WindowManager").GetComponent<WindowSystem>();
-            server = GameObject.Find("ServerManager").GetComponent<LensServer>();
+            //cs = GameObject.Find("WindowManager").GetComponent<CameraSystem>();
+            ls = GameObject.Find("StatusControl").GetComponent<LayerSystem>();
+            cl = GameObject.Find("StatusControl").GetComponent<ControlList>();
+            //ws = GameObject.Find("WindowManager").GetComponent<WindowSystem>();
+            //server = GameObject.Find("ServerManager").GetComponent<LensServer>();
             gc = GameObject.Find("PointerImage").GetComponent<GazeCenter>();
+            ap = GameObject.Find("StatusControl").GetComponent<AppControl>();
+            
         }
 
 
@@ -44,18 +54,24 @@ namespace MixOne
             {
                 cs.EnableGyro();
                 cameraHold = !cameraHold;
+                System.Threading.Thread.Sleep(100);
+                layer = ls.GetLayer("DynamicLayer");
+                layer.transform.eulerAngles = new Vector3(Camera.main.transform.eulerAngles.x, Camera.main.transform.eulerAngles.y, 0);
+                layer = ls.GetLayer("ApplicationLayer");
+                layer.transform.eulerAngles = new Vector3(Camera.main.transform.eulerAngles.x, Camera.main.transform.eulerAngles.y, 0);
+                
             }
             else
             {
                 cs.StopGyro();
                 cameraHold = !cameraHold;
             }
-
+            
         }
 
         public void LayerTask(string task)
         {
-            GameObject layer;
+            
             //Debug.Log("-----");
             switch (task)
             {
@@ -63,26 +79,28 @@ namespace MixOne
                 case "Left":
                     layer = ls.GetLayer("DynamicLayer");
                     //GameObject windows = layer.transform.ge
-                    //layer.transform.Rotate(new Vector3(0, -10f, 0));
-                    ws.RotateDynamicWindows(layer ,- 10);
+                    layer.transform.Rotate(new Vector3(0, -10f, 0));
+                    ls.RotateDynamicWindows(layer, -10);
                     //server.Send(layer.transform.eulerAngles.ToString());
                     break;
                 case "Right":
-                    
                     layer = ls.GetLayer("DynamicLayer");
-                    ws.RotateDynamicWindows(layer,+10);
-                    //layer.transform.Rotate(new Vector3(0, +10f, 0));
+                    ls.RotateDynamicWindows(layer, +10);
+                    layer.transform.Rotate(new Vector3(0, +10f, 0));
                     //server.Send(obj.transform.eulerAngles.ToString());
                     break;
                 case "Up":
 
-                    ws.RotateDynamicCamera( -10);
-                    //layer.transform.Rotate(new Vector3(0, +10f, 0));
+                    layer = ls.GetLayer("Layers");
+                    layer.transform.eulerAngles = new Vector3(Camera.main.transform.eulerAngles.x,Camera.main.transform.eulerAngles.y,0);
+                    
                     //server.Send(obj.transform.eulerAngles.ToString());
+
                     break;
                 case "Down":
 
-                    ws.RotateDynamicCamera(+10);
+                    //layer = ls.GetLayer("DynamicLayer");
+                    //ws.RotateDynamicCamera(+10);
                     //layer.transform.Rotate(new Vector3(0, +10f, 0));
                     //server.Send(obj.transform.eulerAngles.ToString());
                     break;
@@ -97,42 +115,50 @@ namespace MixOne
             switch (task)
             {
                 case "Tap":
-                    GameObject colliderOpen = gc.GetObject();
-                    if (colliderOpen != null)
+
+                    GameObject collider = gc.GetObject();
+                    if (collider != null)
                     {
-                        string openName = colliderOpen.name;
-                        if (WindowSystem.Applist.Contains(openName) & WindowSystem.DynamicApplist.Contains(openName))
+                        tapName = collider.name;
+                        parentName = collider.transform.parent.name;
+
+                        if (collider.tag == "Grid")
                         {
-                            GameObject layer = ls.GetLayer("DynamicLayer");
-                            if (ws.CheckExist(openName))
-                            {
-                                ws.PutDynamicWindowForward(layer, openName);
-                            }
-                            else
-                            {
-                                ws.insertDynamicWindow(layer, openName);
-                            }
+                            Debug.Log(tapName);
+                            Debug.Log(parentName);
                         }
-                        if (WindowSystem.Applist.Contains(openName) & WindowSystem.StaticApplist.Contains(openName))
-                        {
-                            GameObject layer = ls.GetLayer("StaticLayer");
-                            if (ws.CheckExist(openName))
-                            {
-                                ws.PutStaticWindowForward(layer, openName);
-                            }
-                            else
-                            {
-                                ws.insertStaticWindow(layer, openName);
-                            }
-                        }
-                        if (WindowSystem.SwitchShowList.ContainsKey(openName))
-                        {
-                            ws.SwitchStatus(WindowSystem.SwitchShowList[openName]);
-                        }
-                        if (WindowSystem.SwitchHideList.ContainsKey(openName))
-                        {
-                            ws.SwitchStatus(WindowSystem.SwitchHideList[openName]);
-                        }
+                        //if (WindowSystem.Applist.Contains(tapName) & WindowSystem.DynamicApplist.Contains(tapName))
+                        //{
+                        //    GameObject layer = ls.GetLayer("DynamicLayer");
+                        //    if (ws.CheckExist(tapName))
+                        //    {
+                        //        ws.PutDynamicWindowForward(layer, tapName);
+                        //    }
+                        //    else
+                        //    {
+                        //        ws.insertDynamicWindow(layer, tapName);
+                        //    }
+                        //}
+                        //if (WindowSystem.Applist.Contains(tapName) & WindowSystem.StaticApplist.Contains(tapName))
+                        //{
+                        //    GameObject layer = ls.GetLayer("StaticLayer");
+                        //    if (ws.CheckExist(tapName))
+                        //    {
+                        //        ws.PutStaticWindowForward(layer, tapName);
+                        //    }
+                        //    else
+                        //    {
+                        //        ws.insertStaticWindow(layer, tapName);
+                        //    }
+                        //}
+                        //if (WindowSystem.SwitchShowList.ContainsKey(tapName))
+                        //{
+                        //    ws.SwitchStatus(WindowSystem.SwitchShowList[tapName]);
+                        //}
+                        //if (WindowSystem.SwitchHideList.ContainsKey(tapName))
+                        //{
+                        //    ws.SwitchStatus(WindowSystem.SwitchHideList[tapName]);
+                        //}
                     }
                     break;
                 case "Hold":
@@ -140,11 +166,11 @@ namespace MixOne
                     if (colliderClose != null)
                     {
                         string closeName = colliderClose.name;
-                        if (ws.CheckExist(closeName))
-                        {
-                            Debug.Log("Closing " + closeName);
-                            ws.CloseWindow(closeName);
-                        }
+                        //if (ws.CheckExist(closeName))
+                        //{
+                        //    Debug.Log("Closing " + closeName);
+                        //    ws.CloseWindow(closeName);
+                        //}
                     }
                     break;
 
@@ -154,15 +180,82 @@ namespace MixOne
             
         }
 
+        public void SystemTask(string task)
+        {
+            string[] taskInfo = task.Split(':');
+            switch (taskInfo[0])
+            {
+                case "OpenApp":
+                    ap.InsertWindow(taskInfo[1]);
+                    break;
+                case "CloseApp":
+                    ap.RemoveWindowApp();
+                    break;
+                case "MoveApp":
+                    ap.PickUpWindow();
+                    break;
+                case "SetApp":
+                    ap.SetDownWindow();
+                    break;
+                case "Rotate":
+                    ap.RotateHorizonWindows(System.Convert.ToInt32(taskInfo[1]));
+                    break;
+                case "Lock":
+                    ap.LockMode();
+                    break;
+                case "Unlock":
+                    ap.UnlockMode();
+                    break;
+                case "RecentApp":
+                    ap.OpenRecentWindow(System.Convert.ToInt32(taskInfo[1]));
+                    break;
+                case "ClearCenter":
+                    ap.ClearCenter();
+                    break;
+
+            }
+        }
+
         public void ClientTask(string task)
         {
             string[] taskInfo = task.Split(':');
             //Debug.Log(window.gameObject.name);
+            switch (taskInfo[0])
+            {
+                case "OpenApp":
+                    ap.InsertWindow(taskInfo[1]);
+                    break;
+                case "CloseApp":
+                    ap.RemoveWindowApp();
+                    break;
+                case "MoveApp":
+                    ap.PickUpWindow();
+                    break;
+                case "SetApp":
+                    ap.SetDownWindow();
+                    break;
+                case "Rotate":
+                    ap.RotateHorizonWindows(System.Convert.ToInt32(taskInfo[1]));
+                    break;
+                case "Lock":
+                    ap.LockMode();
+                    break;
+                case "Unlock":
+                    ap.UnlockMode();
+                    break;
+                case "RecentApp":
+                    ap.OpenRecentWindow(System.Convert.ToInt32(taskInfo[1]));
+                    break;
+                case "ClearCenter":
+                    ap.ClearCenter();
+                    break;
 
+            }
             switch (taskInfo[1])
             {
-
-               
+                case "OpenApp":
+                    ap.InsertWindow(taskInfo[1]);
+                    break;
                 case "DualHold":
                     CameraTask(taskInfo[1]);
                     //server.Send(obj.transform.eulerAngles.ToString());
@@ -171,6 +264,12 @@ namespace MixOne
                     LayerTask(taskInfo[1]);
                     break;
                 case "Right":
+                    LayerTask(taskInfo[1]);
+                    break;
+                case "Up":
+                    LayerTask(taskInfo[1]);
+                    break;
+                case "Down":
                     LayerTask(taskInfo[1]);
                     break;
                 //server.Send(obj.transform.eulerAngles.ToString());
@@ -192,6 +291,21 @@ namespace MixOne
                 gc.MovePointer(new Vector3(float.Parse(move[1]), float.Parse(move[3]),0));
             }
 
+        }
+
+        public void testCam()
+        {
+            LayerTask("Up");
+        }
+
+        public void CloseApp()
+        {
+            ap.RemoveWindowApp();
+        }
+
+        public void OpenApplist()
+        {
+            cl.OpenAppList();
         }
     }
 

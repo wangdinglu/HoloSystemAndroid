@@ -7,16 +7,15 @@ namespace MixOne
 {
     public class SpaceSettings : MonoBehaviour
     {
-        // Start is called before the first frame update
-        public static int length = 72;
-        public static float cell = 360 / (float)length;
-        public static float basicDynamicRadius = 220;
-        public static float layerDynamicRadius = 30;
+        
+        public static int cell = 2;
 
-        public static float basicStaticRadius = 150;
-        public static float layerStaticRadius = 20;
+        public static int horizonWidth = 91;
+        public static int horizonHeight = 6;
+        public static int verticalHeight = 42;
+        public static int verticalWidth = 7;
 
-        //    _ip = "192.168.3.77";
-        public static string serverIP = "192.168.3.72";
+        public static string serverIP = "192.168.3.4";
+
     }
 }

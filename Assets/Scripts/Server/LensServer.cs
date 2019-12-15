@@ -26,10 +26,6 @@ namespace MixOne
 
         }
 
-        public static void SwitchToPC()
-        {
-            
-        }
 
         //public GameObject controller;
 

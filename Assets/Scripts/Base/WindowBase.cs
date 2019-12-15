@@ -10,12 +10,13 @@ namespace MixOne
 
         private static WindowBase instance = null;
         public string AppName { get; set; }
-        public float Width { get; set; }
-        public float Height { get; set; }
+        public int Width { get; set; }
+        public int Height { get; set; }
         public int Id { get; set; }
+        
 
         public WindowBase() { }
-        public WindowBase(string _name, float _width, float _height,int _id)
+        public WindowBase(string _name, int _width, int _height,int _id)
         {
             AppName = _name;
             Width = _width;

@@ -27,7 +27,6 @@ namespace MixOne
         public void EnableGyro()
         {
             gcc.EnableRotation();
-            System.Threading.Thread.Sleep(100);
             //layer = ls.GetLayer("DynamicLayer");
             //layer.transform.eulerAngles = new Vector3(0, gcc.GetGyroStatus().y, 0);
         }
